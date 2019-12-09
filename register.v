@@ -1,4 +1,5 @@
 module Register(
+    clk,
     read_reg_1,
     read_reg_2,
     write_reg,
@@ -8,6 +9,7 @@ module Register(
     read_data_2
 );
 
+input  clk;
 input  [4:0] read_reg_1;
 input  [4:0] read_reg_2;
 input  [4:0] write_reg;
