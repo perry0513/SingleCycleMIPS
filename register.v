@@ -1,4 +1,4 @@
-module register(
+module Register(
     read_reg_1,
     read_reg_2,
     write_reg,

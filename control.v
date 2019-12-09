@@ -1,4 +1,4 @@
-module control(
+module Control(
     ins,
     RegDst,
     Jump,

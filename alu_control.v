@@ -1,4 +1,4 @@
-module alu_control(
+module ALU_control(
     ins,
     ALUOp,
     ALUCtrl
