@@ -1,5 +1,5 @@
 module Control(
-    ins,
+    opcode,
     RegDst,
     Jump,
     Branch,
@@ -9,10 +9,11 @@ module Control(
     ALUOp,
     MemWrite,
     ALUSrc,
-    RegWrite
+    RegWrite,
+    Jal
 );
 
-input  [5:0] ins;
+input  [5:0] opcode;
 
 output RegDst;
 output Jump;
@@ -23,8 +24,35 @@ output MemtoReg;
 output MemWrite;
 output ALUSrc;
 output RegWrite;
+output Jal;
 output [1:0] ALUop;
 
+/* 
+* R    000000
+* addi 001000
+* lw   100011
+* sw   101011
+* beq  000100
+* bne  000101
+* j    000010
+* jal  000011
+*/
+
+assign RegDst   = ~(opcode[2] | opcode[1] | opcode[0]);
+assign Jump     = ~opcode[5] &  opcode[1];
+assign Branch   =  opcode[2];
+assign Equal    = ~opcode[0];
+assign MemRead  =  opcode[5] & ~opcode[3];
+assign MemtoReg =  opcode[5] & ~opcode[3];
+assign MemWrite =  opcode[5] &  opcode[3];
+assign ALUSrc   =  opcode[3] |  opcode[1];
+assign RegWrite = (opcode[5] ^  opcode[3]) | ~RegDst;
+assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
+assign ALUOp    =  opcode[2]? 2'b01 :
+                   opcode[5]? 2'b00 : 2'b10;
+
+               
+/*
 always@(*) begin
     RegDst   = 1'b0;
     Jump     = 1'b0;
@@ -35,8 +63,8 @@ always@(*) begin
     MemtoReg = 1'b0;
     ALUOp    = 2'b00;
 
-    case(ins)
-        /* R format */
+    case(opcode)
+        // R format
         6'h00 : begin
             RegDst   = 1'b1;
             ALUOp    = 2'b10;
@@ -44,26 +72,26 @@ always@(*) begin
             RegWrite = 1'b1;
         end
 
-        /* addi */
+        // addi 
         6'h08 : begin
             RegWrite = 1'b1;
         end
 
-        /* lw */
+        // lw 
         6'h23 : begin
             RegWrite = 1'b1;
             MemRead  = 1'b1;
             MemtoReg = 1'b1;
         end
 
-        /* sw */
+        // sw
         6'h2B : begin
             RegWrite = 1'b0;
             MemRead  = 1'b1;
             MemtoReg = 1'b1;
         end
 
-        /* beq */
+        // beq
         6'h04 : begin
             ALUOp    = 2'b01;
             RegWrite = 1'b0;
@@ -71,7 +99,7 @@ always@(*) begin
             Equal    = 1'b1;
         end
 
-        /* bne */
+        // bne 
         6'h05 : begin
             ALUOp    = 2'b01;
             RegWrite = 1'b0;
@@ -79,14 +107,14 @@ always@(*) begin
             Equal    = 1'b0;
         end
 
-        /* j */
-        6'h05 : begin
+        // j 
+        6'h02 : begin
             Jump     = 1'b1;
             RegWrite = 1'b0;
         end
 
-        /* jal */
-        6'h05 : begin
+        // jal
+        6'h03 : begin
             Jump     = 1'b1;
             RegWrite = 1'b0;
         end
@@ -94,6 +122,6 @@ always@(*) begin
 
     endcase
 end
-
+*/
 
 endmodule

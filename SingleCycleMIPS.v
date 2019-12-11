@@ -1,3 +1,8 @@
+`include "register.v"
+`include "control.v"
+`include "alu_control.v"
+`include "alu.v"
+
 module SingleCycleMIPS( 
     clk,
     rst_n,
@@ -46,7 +51,7 @@ wire [31:0] extimm = { 16{IR[15]}, IR[15: 0]};
 wire [26:0] addr   = IR[25: 0];
 
 /* interconnections between modules */
-wire RegDst, Branch, Equal, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite;
+wire RegDst, Branch, Equal, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jal, Jr;
 wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 
@@ -67,6 +72,8 @@ wire        wr        = RegDst? rd : rs;
 wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
 wire [31:0] DatatoReg = MemtoReg? mem_data : ALU_result;
 wire [31:0] branched  = (Branch & (Equal ^ Zero))? branch_addr : added_addr;
+wire [31:0] jumped    = Jump? jump_addr : branched;
+
 
 /* output wires */
 assign CEN = ~(MemRead & MemWrite);
@@ -74,7 +81,7 @@ assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
 assign A   = ALU_result;
 assign Data2Mem = reg_data_2;
-assign IR_addr  = Jump? jump_addr : branched;
+assign IR_addr  = Jr? reg_data_1 : jumped;
 
 //==== wire connection to submodule ======================
 Register mips_reg(
@@ -84,12 +91,14 @@ Register mips_reg(
    .write_reg(wt),
    .write_data(DatatoReg),
    .RegWrite(RegWrite),
+   .Jal(Jal),
+   .pc_4(added_addr),
    .read_data_1(reg_data_1),
    .read_data_2(reg_data_2)
 );
 
 Control ctrl(
-    .ins(opcode),
+    .opcode(opcode),
     .RegDst(RegDst),
     .Jump(Jump),
     .Branch(Branch),
@@ -99,19 +108,20 @@ Control ctrl(
     .ALUOp(ALUOp),
     .MemWrite(MemWrite),
     .ALUSrc(ALUSrc),
-    .RegWrite(RegWrite)
+    .RegWrite(RegWrite),
+    .Jal(Jal)
 );
 
 ALU_control alu_ctrl(
     .ins(funct),
     .ALUOp(ALUOp),
+    .Jr(Jr),
     .ALUCtrl(ALUCtrl)
 );
 
 ALU alu(
     .in0(reg_data_1),
     .in1(ALUInput),
-    .shamt(shamt),
     .ALUCtrl(ALUCtrl),
     .Zero(Zero),
     .ALUResult(ALU_result)
