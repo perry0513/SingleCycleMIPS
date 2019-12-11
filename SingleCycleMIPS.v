@@ -46,6 +46,7 @@ wire [5:0] opcode = IR[31:26];
 wire [4:0] rs     = IR[25:21];
 wire [4:0] rt     = IR[20:16];
 wire [4:0] rd     = IR[15:11];
+wire [4:0] shamt  = IR[10: 6];
 wire [5:0] funct  = IR[ 5: 0];
 
 wire [31:0] extimm = { 16{IR[15]}, IR[15: 0]};
@@ -97,6 +98,7 @@ Register mips_reg(
 
 Control ctrl(
     .opcode(opcode),
+    .funct(funct),
     .RegDst(RegDst),
     .Jump(Jump),
     .Branch(Branch),
@@ -107,13 +109,13 @@ Control ctrl(
     .MemWrite(MemWrite),
     .ALUSrc(ALUSrc),
     .RegWrite(RegWrite),
-    .Jal(Jal)
+    .Jal(Jal),
+    .Jr(Jr)
 );
 
 ALU_control alu_ctrl(
-    .ins(funct),
+    .funct(funct),
     .ALUOp(ALUOp),
-    .Jr(Jr),
     .ALUCtrl(ALUCtrl)
 );
 
@@ -121,6 +123,7 @@ ALU alu(
     .in0(reg_data_1),
     .in1(ALUInput),
     .ALUCtrl(ALUCtrl),
+    .shamt(shamt),
     .Zero(Zero),
     .ALUResult(ALU_result)
 );
