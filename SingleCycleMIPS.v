@@ -32,11 +32,13 @@ output        OEN;
 
 //==== reg/wire declaration ===============================
 /* output registers */
+/*
 reg  CEN, next_CEN;
 reg  WEN, next_WEN;
 reg  OEN, next_OEN;
 reg  [6:0]  A, next_A;
 reg  [31:0] Data2Mem, next_Data2Mem;
+*/
 
 
 /* decode instructions */
@@ -58,7 +60,6 @@ wire        Zero;
 wire [31:0] reg_data_1;
 wire [31:0] reg_data_2;
 wire [31:0] ALU_result;
-wire [31:0] mem_data;
 
 
 /* Jump */
@@ -69,7 +70,7 @@ wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 /* muxes */
 wire        write_reg = Jal? 5'd31: (RegDst? rd : rt);
 wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
-wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? mem_data : ALU_result);
+wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? ReadDataMem : ALU_result);
 wire [31:0] branched  = (Branch & (NEqual ^ Zero))? branch_addr : added_addr;
 wire [31:0] jumped    = Jump? jump_addr : branched;
 
@@ -78,7 +79,7 @@ wire [31:0] jumped    = Jump? jump_addr : branched;
 assign CEN = ~(MemRead & MemWrite);
 assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
-assign A   = ALU_result;
+assign A   = ALU_result[6:0];
 assign Data2Mem = reg_data_2;
 assign IR_addr  = Jr? reg_data_1 : jumped;
 
