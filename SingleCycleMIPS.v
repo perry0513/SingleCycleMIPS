@@ -44,14 +44,13 @@ wire [5:0] opcode = IR[31:26];
 wire [4:0] rs     = IR[25:21];
 wire [4:0] rt     = IR[20:16];
 wire [4:0] rd     = IR[15:11];
-wire [4:0] shamt  = IR[10: 6];
 wire [5:0] funct  = IR[ 5: 0];
 
 wire [31:0] extimm = { 16{IR[15]}, IR[15: 0]};
-wire [26:0] addr   = IR[25: 0];
+wire [25:0] addr   = IR[25: 0];
 
 /* interconnections between modules */
-wire RegDst, Branch, Equal, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jal, Jr;
+wire RegDst, Branch, NEqual, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jal, Jr;
 wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 
@@ -68,10 +67,10 @@ wire [31:0] branch_addr = added_addr + (extimm << 2);
 wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 
 /* muxes */
-wire        wr        = RegDst? rd : rs;
+wire        write_reg = Jal? 5'd31: (RegDst? rd : rt);
 wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
-wire [31:0] DatatoReg = MemtoReg? mem_data : ALU_result;
-wire [31:0] branched  = (Branch & (Equal ^ Zero))? branch_addr : added_addr;
+wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? mem_data : ALU_result);
+wire [31:0] branched  = (Branch & (NEqual ^ Zero))? branch_addr : added_addr;
 wire [31:0] jumped    = Jump? jump_addr : branched;
 
 
@@ -88,11 +87,9 @@ Register mips_reg(
    .clk(clk),
    .read_reg_1(rs),
    .read_reg_2(rt),
-   .write_reg(wt),
+   .write_reg(write_reg),
    .write_data(DatatoReg),
    .RegWrite(RegWrite),
-   .Jal(Jal),
-   .pc_4(added_addr),
    .read_data_1(reg_data_1),
    .read_data_2(reg_data_2)
 );
@@ -102,7 +99,7 @@ Control ctrl(
     .RegDst(RegDst),
     .Jump(Jump),
     .Branch(Branch),
-    .Equal(Equal),
+    .NEqual(NEqual),
     .MemRead(MemRead),
     .MemtoReg(MemtoReg),
     .ALUOp(ALUOp),
