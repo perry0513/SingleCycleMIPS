@@ -1,5 +1,6 @@
 module Control(
     opcode,
+    funct,
     RegDst,
     Jump,
     Branch,
@@ -10,10 +11,12 @@ module Control(
     MemWrite,
     ALUSrc,
     RegWrite,
-    Jal
+    Jal,
+    Jr
 );
 
 input  [5:0] opcode;
+input  [5:0] funct;
 
 output RegDst;
 output Jump;
@@ -25,6 +28,7 @@ output MemWrite;
 output ALUSrc;
 output RegWrite;
 output Jal;
+output Jr;
 output [1:0] ALUop;
 
 /* 
@@ -36,7 +40,9 @@ output [1:0] ALUop;
 * bne  000101
 * j    000010
 * jal  000011
+* jr   000000 001000
 */
+
 
 assign RegDst   = ~(opcode[2] | opcode[1] | opcode[0]);
 assign Jump     = ~opcode[5] &  opcode[1];
@@ -46,10 +52,11 @@ assign MemRead  =  opcode[5] & ~opcode[3];
 assign MemtoReg =  opcode[5] & ~opcode[3];
 assign MemWrite =  opcode[5] &  opcode[3];
 assign ALUSrc   =  opcode[3] |  opcode[1];
-assign RegWrite = (opcode[5] ^  opcode[3]) | ~RegDst;
+assign RegWrite = (opcode[5] ^  opcode[3]) | (~RegDst & ~Jr);
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
-assign ALUOp    =  opcode[2]? 2'b01 :
-                   opcode[5]? 2'b00 : 2'b10;
+assign Jr       = ~funct[5] & funct[3];
+assign ALUOp    =  opcode[5]? 2'b00 :
+                   opcode[2]? 2'b01 : 2'b10;
 
                
 /*

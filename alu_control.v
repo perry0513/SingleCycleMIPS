@@ -1,13 +1,11 @@
 module ALU_control(
     funct,
     ALUOp,
-    Jr,
     ALUCtrl
 );
 
 input  [5:0] funct;
 input  [1:0] ALUOp;
-output       Jr;
 output [3:0] ALUCtrl;
 
 /*
