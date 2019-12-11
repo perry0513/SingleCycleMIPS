@@ -10,15 +10,11 @@ input  [1:0] ALUOp;
 output       Jr;
 output [3:0] ALUCtrl;
 
-/*
-* sll 000000
-* srl 000010
-* add 100000
-* sub 100010
-* and 100100
-* or  100101
-* slt 101010
-* jr  001000
-*/
+assign ALUCtrl[3] = 1'b0;
+assign ALUCtrl[2] = ( ~ALUOp[1] & ALUOP[0] ) | ( ALUOp[1] & ~ALUOP[0] & funct[1] );
+assign ALUCtrl[1] = ~ALUOp[1] | ( funct[5] & ~funct[2] );
+assign ALUCtrl[0] = ( funct[3] ^ funct[2] ) & ( funct[1] ^ funct[0] ) | funct[5];
+
+assign Jr = ~funct[5] & funct[3];
 
 endmodule
