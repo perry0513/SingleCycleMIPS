@@ -21,4 +21,6 @@ assign ALUResult = ALUCtrl[2:1] == 2'b00 ? ( ALUCtrl[0] == 1'b0 ? in0 & in1 : in
                    ALUCtrl[1:0] == 2'b11 ? { 31'b0, (in0 < in1) } :
                    32'b0;
 
+assign Zero = ( ALUResult == 32'b0 );
+
 endmodule
