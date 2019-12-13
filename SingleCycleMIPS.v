@@ -40,6 +40,7 @@ reg  [6:0]  A, next_A;
 reg  [31:0] Data2Mem, next_Data2Mem;
 */
 
+reg  [31:0] pc;
 
 /* decode instructions */
 wire [5:0] opcode = IR[31:26];
@@ -64,7 +65,7 @@ wire [31:0] ALU_result;
 
 
 /* Jump */
-wire [31:0] added_addr  = IR_addr + 32'd4;
+wire [31:0] added_addr  = pc + 32'd4;
 wire [31:0] branch_addr = added_addr + (extimm << 2);
 wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 
@@ -83,6 +84,14 @@ assign OEN = ~MemRead;
 assign A   = ALU_result[6:0];
 assign Data2Mem = reg_data_2;
 assign IR_addr  = Jr? reg_data_1 : jumped;
+
+always@(posedge clk) begin
+	if (~rst_n)
+		pc <= 32'b0;
+	else
+		pc <= IR_addr;
+end
+	
 
 //==== wire connection to submodule ======================
 Register mips_reg(
