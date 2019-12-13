@@ -80,7 +80,7 @@ wire [31:0] jumped    = Jump? jump_addr : branched;
 
 /* output wires */
 // assign CEN = MemRead & MemWrite;
-assign CEN = WEN | OEN;
+assign CEN = WEN & OEN;
 assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
 assign A   = ALU_result[6:0];
