@@ -44,7 +44,8 @@ output [1:0] ALUOp;
 */
 
 
-assign RegDst   = ~(opcode[2] | opcode[1] | opcode[0]);
+// assign RegDst   = ~(opcode[2] | opcode[1] | opcode[0]);
+assign RegDst = ~( opcode[5] | opcode[3] | opcode[2] );
 assign Jump     = ~opcode[5] &  opcode[1];
 assign Branch   =  opcode[2];
 assign NEqual   =  opcode[0];
