@@ -83,13 +83,18 @@ assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
 assign A   = ALU_result[6:0];
 assign Data2Mem = reg_data_2;
-assign IR_addr  = Jr? reg_data_1 : jumped;
+// assign IR_addr  = Jr? reg_data_1 : jumped;
+reg  [31:0] IR_addr;
 
 always@(posedge clk) begin
-	if (~rst_n)
-		pc <= 32'b0;
-	else
-		pc <= IR_addr;
+	if (~rst_n) begin
+		pc 		<= 32'b0;
+		IR_addr <= 32'b0;
+	end
+	else begin
+		pc 		<= IR_addr;
+		IR_addr <= Jr? reg_data_1 : jumped;
+	end
 end
 	
 
