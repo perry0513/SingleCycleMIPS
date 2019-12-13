@@ -45,7 +45,7 @@ output [1:0] ALUOp;
 
 
 // assign RegDst   = ~(opcode[2] | opcode[1] | opcode[0]);
-assign RegDst = ~( opcode[5] | opcode[3] | opcode[2] );
+assign RegDst   =  opcode[5] | opcode[3];
 assign Jump     = ~opcode[5] &  opcode[1];
 assign Branch   =  opcode[2];
 assign NEqual   =  opcode[0];
@@ -53,10 +53,11 @@ assign MemRead  =  opcode[5] & ~opcode[3];
 assign MemtoReg =  opcode[5] & ~opcode[3];
 assign MemWrite =  opcode[5] &  opcode[3];
 assign ALUSrc   =  opcode[3] |  opcode[1];
-assign RegWrite = opcode[5] | (RegDst & ~Jr) | Jal;
+assign RegWrite = (opcode[5] ^  opcode[3]) | ( ~opcode[2] & ~opcode[1] & ~opcode[0] & (funct[5] | ~funct[3]) ) | Jal;
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
-assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
-assign ALUOp    =  opcode[5]? 2'b00 :
+// assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
+assign Jr       = ~opcode[2] & ~opcode[1] & ~opcode[0] & ~funct [5] &  funct [3];
+assign ALUOp    = (opcode[5] | opcode[3] )? 2'b00 :
                    opcode[2]? 2'b01 : 2'b10;
 
                
