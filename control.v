@@ -54,7 +54,7 @@ assign MemWrite =  opcode[5] &  opcode[3];
 assign ALUSrc   =  opcode[3] |  opcode[1];
 assign RegWrite = (opcode[5] ^  opcode[3]) | (RegDst & ~Jr) | Jal;
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
-assign Jr       = ~funct [5] &  funct[3];
+assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
 assign ALUOp    =  opcode[5]? 2'b00 :
                    opcode[2]? 2'b01 : 2'b10;
 
