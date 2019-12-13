@@ -4,7 +4,7 @@ module Control(
     RegDst,
     Jump,
     Branch,
-    Equal,
+    NEqual,
     MemRead,
     MemtoReg,
     ALUOp,
@@ -29,7 +29,7 @@ output ALUSrc;
 output RegWrite;
 output Jal;
 output Jr;
-output [1:0] ALUop;
+output [1:0] ALUOp;
 
 /* 
 * R    000000
@@ -52,9 +52,9 @@ assign MemRead  =  opcode[5] & ~opcode[3];
 assign MemtoReg =  opcode[5] & ~opcode[3];
 assign MemWrite =  opcode[5] &  opcode[3];
 assign ALUSrc   =  opcode[3] |  opcode[1];
-assign RegWrite = (opcode[5] ^  opcode[3]) | (RegDst & ~Jr);
+assign RegWrite = (opcode[5] ^  opcode[3]) | (RegDst & ~Jr) | Jal;
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
-assign Jr       = ~funct[5] & funct[3];
+assign Jr       = ~funct [5] &  funct[3];
 assign ALUOp    =  opcode[5]? 2'b00 :
                    opcode[2]? 2'b01 : 2'b10;
 

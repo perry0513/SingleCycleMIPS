@@ -83,9 +83,12 @@ module SingleCycle_tb;
 
 // Dump waveform file
 	initial begin
-		$fsdbDumpfile("MIPS.fsdb");
-		$fsdbDumpvars(0,SingleCycle_tb,"+mda"); //This command is for dumping 2D array
-		$fsdbDumpvars;								
+//		$fsdbDumpfile("MIPS.fsdb");
+//		$fsdbDumpvars(0,SingleCycle_tb,"+mda"); //This command is for dumping 2D array
+//		$fsdbDumpvars;								
+		$dumpfile("MIPS.vcd");
+//		$dumpvars(0, SingleCycle_tb, "+mda");
+		$dumpvars;
 	end
 	
 //initial rst_n, value

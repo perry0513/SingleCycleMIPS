@@ -49,11 +49,11 @@ wire [4:0] rd     = IR[15:11];
 wire [4:0] shamt  = IR[10: 6];
 wire [5:0] funct  = IR[ 5: 0];
 
-wire [31:0] extimm = { 16{IR[15]}, IR[15: 0]};
+wire [31:0] extimm = { {16{IR[15]}}, IR[15: 0] };
 wire [25:0] addr   = IR[25: 0];
 
 /* interconnections between modules */
-wire RegDst, Branch, NEqual, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jal, Jr;
+wire RegDst, Branch, NEqual, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jump, Jal, Jr;
 wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 
@@ -69,7 +69,7 @@ wire [31:0] branch_addr = added_addr + (extimm << 2);
 wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 
 /* muxes */
-wire        write_reg = Jal? 5'd31: (RegDst? rd : rt);
+wire [ 4:0] write_reg = Jal? 5'd31: (RegDst? rd : rt);
 wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
 wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? ReadDataMem : ALU_result);
 wire [31:0] branched  = (Branch & (NEqual ^ Zero))? branch_addr : added_addr;
@@ -87,6 +87,7 @@ assign IR_addr  = Jr? reg_data_1 : jumped;
 //==== wire connection to submodule ======================
 Register mips_reg(
    .clk(clk),
+   .rst_n(rst_n),
    .read_reg_1(rs),
    .read_reg_2(rt),
    .write_reg(write_reg),
