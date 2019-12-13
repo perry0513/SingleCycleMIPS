@@ -41,6 +41,7 @@ reg  [31:0] Data2Mem, next_Data2Mem;
 */
 
 reg  [31:0] pc;
+wire [31:0] next_pc;
 
 /* decode instructions */
 wire [5:0] opcode = IR[31:26];
@@ -78,23 +79,20 @@ wire [31:0] jumped    = Jump? jump_addr : branched;
 
 
 /* output wires */
-assign CEN = ~(MemRead & MemWrite);
+assign CEN = MemRead & MemWrite;
 assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
 assign A   = ALU_result[6:0];
 assign Data2Mem = reg_data_2;
-// assign IR_addr  = Jr? reg_data_1 : jumped;
-reg  [31:0] IR_addr;
+assign next_pc  = Jr? reg_data_1 : jumped;
+assign IR_addr  = pc;
+// reg  [31:0] IR_addr;
+
+// always@(*) IR_addr = Jr? reg_data_1 : jumped;
 
 always@(posedge clk) begin
-	if (~rst_n) begin
-		pc 		<= 32'b0;
-		IR_addr <= 32'b0;
-	end
-	else begin
-		pc 		<= IR_addr;
-		IR_addr <= Jr? reg_data_1 : jumped;
-	end
+	if (~rst_n) pc <= 32'b0;
+	else 		pc <= next_pc;
 end
 	
 
