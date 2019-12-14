@@ -79,17 +79,13 @@ wire [31:0] jumped    = Jump? jump_addr : branched;
 
 
 /* output wires */
-// assign CEN = MemRead & MemWrite;
 assign CEN = WEN & OEN;
 assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
-assign A   = ALU_result[6:0];
+assign A   = ALU_result[8:2];
 assign Data2Mem = reg_data_2;
 assign next_pc  = Jr? reg_data_1 : jumped;
 assign IR_addr  = pc;
-// reg  [31:0] IR_addr;
-
-// always@(*) IR_addr = Jr? reg_data_1 : jumped;
 
 always@(posedge clk) begin
 	if (~rst_n) pc <= 32'b0;
