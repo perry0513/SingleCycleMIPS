@@ -97,7 +97,7 @@ assign next_pc  = Jr? reg_data_1 : jumped;
 assign IR_addr  = pc;
 
 
-assign next_double = (Fp & rs[0])? ~double : double;
+assign next_double = (Load_store_fp & opcode[2])? ~double : double;
 
 always@(posedge clk) begin
     if (~rst_n) begin
@@ -105,7 +105,7 @@ always@(posedge clk) begin
         double <= 1'b0;
     end
     else begin
-        pc <= (Fp & rs[0] & ~double)? pc : next_pc;
+        pc <= (Load_store_fp & opcode[2] & ~double)? pc : next_pc;
         double <= next_double;
     end
 end
