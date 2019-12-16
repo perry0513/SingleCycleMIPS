@@ -46,23 +46,31 @@ wire [31:0] next_pc;
 /* decode instructions */
 wire [5:0] opcode = IR[31:26];
 wire [4:0] rs     = IR[25:21];
-wire [4:0] rt     = IR[20:16];
+wire [4:0] rt     = double? IR[20:16] + 5'd1 : IR[20:16];
 wire [4:0] rd     = IR[15:11];
 wire [4:0] shamt  = IR[10: 6];
 wire [5:0] funct  = IR[ 5: 0];
 
-wire [31:0] extimm = { {16{IR[15]}}, IR[15: 0] };
+wire [15:0] imm    = double? IR[15:0] + 5'd4 : IR[15:0];
+wire [31:0] extimm = { {16{imm[15]}}, imm };
 wire [25:0] addr   = IR[25: 0];
 
 /* interconnections between modules */
 wire RegDst, Branch, NEqual, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jump, Jal, Jr;
+reg  double;
+wire Fp, next_double, Load_store_fp, Bclt, FpCond;
 wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 
 wire        Zero;
-wire [31:0] reg_data_1;
-wire [31:0] reg_data_2;
+wire [31:0] reg_data_1_1;
+wire [31:0] reg_data_2_1;
+wire [31:0] reg_data_1_2;
+wire [31:0] reg_data_2_2;
 wire [31:0] ALU_result;
+wire [31:0] ALU_fp_result_1;
+wire [31:0] ALU_fp_result_2;
+wire [31:0] real_ALU_result = Fp? ALU_fp_result_1 : ALU_result;
 
 
 /* Jump */
@@ -73,8 +81,9 @@ wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 /* muxes */
 wire [ 4:0] write_reg = Jal? 5'd31: (RegDst? rd : rt);
 wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
-wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? ReadDataMem : ALU_result);
-wire [31:0] branched  = (Branch & (NEqual ^ Zero))? branch_addr : added_addr;
+wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? ReadDataMem : real_ALU_result);
+wire        isBranch  = (Fp & ~rs[4] & FpCond) | (Branch & (NEqual ^ Zero));
+wire [31:0] branched  = isBranch? branch_addr : added_addr;
 wire [31:0] jumped    = Jump? jump_addr : branched;
 
 
@@ -87,9 +96,18 @@ assign Data2Mem = reg_data_2;
 assign next_pc  = Jr? reg_data_1 : jumped;
 assign IR_addr  = pc;
 
+
+assign next_double = (Fp & rs[0])? ~double : double;
+
 always@(posedge clk) begin
-	if (~rst_n) pc <= 32'b0;
-	else 		pc <= next_pc;
+    if (~rst_n) begin
+        pc <= 32'b0;
+        double <= 1'b0;
+    end
+    else begin
+        pc <= (Fp & rs[0] & ~double)? pc : next_pc;
+        double <= next_double;
+    end
 end
 	
 
@@ -100,10 +118,16 @@ Register mips_reg(
    .read_reg_1(rs),
    .read_reg_2(rt),
    .write_reg(write_reg),
-   .write_data(DatatoReg),
+   .write_data_1(DatatoReg),
+   .write_data_2(ALU_fp_result_2),
    .RegWrite(RegWrite),
-   .read_data_1(reg_data_1),
-   .read_data_2(reg_data_2)
+   .Fp(Fp),
+   .double(double),
+   .Load_store_fp(Load_store_fp),
+   .read_data_1_1(reg_data_1_1),
+   .read_data_2_1(reg_data_2_1),
+   .read_data_1_2(reg_data_1_2),
+   .read_data_2_2(reg_data_2_2)
 );
 
 Control ctrl(
@@ -120,7 +144,10 @@ Control ctrl(
     .ALUSrc(ALUSrc),
     .RegWrite(RegWrite),
     .Jal(Jal),
-    .Jr(Jr)
+    .Jr(Jr),
+    .Fp(Fp),
+    .Load_store_fp(Load_store_fp),
+    .Bclt(Bclt)
 );
 
 ALU_control alu_ctrl(
@@ -136,6 +163,12 @@ ALU alu(
     .shamt(shamt),
     .Zero(Zero),
     .ALUResult(ALU_result)
+);
+
+ALU_fp alu_fp(
+    .FpCond(FpCond),
+    .ALUResult_1(ALU_fp_result_1),
+    .ALUResult_2(ALU_fp_result_2)
 );
 
 //==== combinational part =================================

@@ -12,7 +12,9 @@ module Control(
     ALUSrc,
     RegWrite,
     Jal,
-    Jr
+    Jr,
+    Fp,
+    Load_store_fp
 );
 
 input  [5:0] opcode;
@@ -29,6 +31,8 @@ output ALUSrc;
 output RegWrite;
 output Jal;
 output Jr;
+output Fp;
+output Load_store_fp;
 output [1:0] ALUOp;
 
 /* 
@@ -61,7 +65,8 @@ assign Jr       =  isRtype & ~funct [5] & funct [3];
 assign ALUOp    = (opcode[5] | opcode[3] )? 2'b00 :
                    opcode[2]? 2'b01 : 2'b10;
 
-               
+assign Fp       = opcode[4];
+assign Load_store_fp = opcode[5] & opcode[4];
 /*
 always@(*) begin
     RegDst   = 1'b0;
