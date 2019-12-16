@@ -70,7 +70,7 @@ wire [31:0] reg_data_2_2;
 wire [31:0] ALU_result;
 wire [31:0] ALU_fp_result_1;
 wire [31:0] ALU_fp_result_2;
-wire [31:0] real_ALU_result = Fp? ALU_fp_result_1 : ALU_result;
+wire [31:0] real_ALU_result = Fp & ~Load_store_fp? ALU_fp_result_1 : ALU_result;
 
 
 /* Jump */
