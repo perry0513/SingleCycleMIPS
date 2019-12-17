@@ -15,7 +15,8 @@ module Control(
     Jal,
     Jr,
     Fp,
-    Load_store_fp
+    Load_store_fp,
+    Bclt
 );
 
 input  fmt;
@@ -36,6 +37,7 @@ output Jr;
 output Fp;
 output Load_store_fp;
 output [1:0] ALUOp;
+output Bclt;
 
 /* 
 * R    000000
@@ -59,7 +61,7 @@ assign NEqual   =  opcode[0];
 assign MemRead  =  opcode[5] & ~opcode[3];
 assign MemtoReg =  opcode[5] & ~opcode[3];
 assign MemWrite =  opcode[5] &  opcode[3];
-assign ALUSrc   =  opcode[3] |  opcode[1];
+assign ALUSrc   =  opcode[5] |  opcode[3];
 assign RegWrite = (opcode[5] ^  opcode[3]) | ( isRtype & (funct[5] | ~funct[3]) ) | Jal | (Fp & fmt & ~funct[5]);
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
 // assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
@@ -69,6 +71,7 @@ assign ALUOp    = (opcode[5] | opcode[3] )? 2'b00 :
 
 assign Fp       = opcode[4];
 assign Load_store_fp = opcode[5] & opcode[4];
+assign Bclt     = ~opcode[5] & opcode[4] & ~fmt;
 /*
 always@(*) begin
     RegDst   = 1'b0;
