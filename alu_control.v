@@ -10,7 +10,7 @@ output [3:0] ALUCtrl;
 
 assign ALUCtrl[3] = funct[5];
 assign ALUCtrl[2] = ( ~ALUOp[1] & ALUOp[0] ) | ( ALUOp[1] & ~ALUOp[0] & ( ~funct[5] | funct[1] ) );
-assign ALUCtrl[1] = ~ALUOp[1] | ( funct[5] & ~funct[2] );
+assign ALUCtrl[1] = ~ALUOp[1] | ( funct[5] & ~funct[2] ) | ( funct[1] & funct[0] );
 assign ALUCtrl[0] = ALUOp[1] & ( ( funct[3] & funct[1] ) | ( funct[2] & funct[0] ) | ( ~funct[5] & funct[1] ) );
 
 endmodule
