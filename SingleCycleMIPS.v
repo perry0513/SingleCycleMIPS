@@ -53,7 +53,7 @@ wire [5:0] funct  = IR[ 5: 0];
 
 wire [15:0] imm    = double? IR[15:0] + 5'd4 : IR[15:0];
 wire [31:0] extimm = { {16{imm[15]}}, imm };
-wire [25:0] addr   = IR[25: 0];
+// wire [25:0] addr   = IR[25: 0];
 
 /* interconnections between modules */
 wire RegDst, Branch, NEqual, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jump, Jal, Jr;
@@ -82,7 +82,7 @@ wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 wire [ 4:0] write_reg = Jal? 5'd31: (RegDst? rd : rt);
 wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
 wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? ReadDataMem : real_ALU_result);
-wire        isBranch  = (Fp & ~rs[4] & FpCond) | (Branch & (NEqual ^ Zero));
+wire        isBranch  = (Bclt & FpCond) | (Branch & (NEqual ^ Zero));
 wire [31:0] branched  = isBranch? branch_addr : added_addr;
 wire [31:0] jumped    = Jump? jump_addr : branched;
 
