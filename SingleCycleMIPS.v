@@ -133,6 +133,7 @@ Register mips_reg(
 Control ctrl(
     .opcode(opcode),
     .funct(funct),
+    .fmt(rs[4]),
     .RegDst(RegDst),
     .Jump(Jump),
     .Branch(Branch),

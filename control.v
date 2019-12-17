@@ -1,6 +1,7 @@
 module Control(
     opcode,
     funct,
+    fmt,
     RegDst,
     Jump,
     Branch,
@@ -17,6 +18,7 @@ module Control(
     Load_store_fp
 );
 
+input  fmt;
 input  [5:0] opcode;
 input  [5:0] funct;
 
@@ -50,15 +52,15 @@ output [1:0] ALUOp;
 
 // assign RegDst   = ~(opcode[2] | opcode[1] | opcode[0]);
 wire   isRtype  = ~(opcode[3] | opcode[2] | opcode[1] | opcode[0]);
-assign RegDst   = ~(opcode[5] | opcode[3]);
+assign RegDst   = ~(opcode[5] | opcode[3]) | (Fp & ~opcode[5]);
 assign Jump     = ~opcode[5] &  opcode[1];
-assign Branch   =  opcode[2];
+assign Branch   =  opcode[2] & ~opcode[5];
 assign NEqual   =  opcode[0];
 assign MemRead  =  opcode[5] & ~opcode[3];
 assign MemtoReg =  opcode[5] & ~opcode[3];
 assign MemWrite =  opcode[5] &  opcode[3];
 assign ALUSrc   =  opcode[3] |  opcode[1];
-assign RegWrite = (opcode[5] ^  opcode[3]) | ( isRtype & (funct[5] | ~funct[3]) ) | Jal;
+assign RegWrite = (opcode[5] ^  opcode[3]) | ( isRtype & (funct[5] | ~funct[3]) ) | Jal | (Fp & fmt & ~funct[5]);
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
 // assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
 assign Jr       =  isRtype & ~funct [5] & funct [3];
