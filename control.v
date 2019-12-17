@@ -67,9 +67,7 @@ assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
 // assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
 assign Jr       =  isRtype & ~funct [5] & funct [3];
 assign ALUOp    = (opcode[5] | opcode[3] )? 2'b00 :
-                   opcode[2]? 2'b01 :
-                  (opcode[4] & funct[1] & funct[0] )? 2'b11 :
-                   2'b10;
+                   opcode[2]? 2'b01 : 2'b10;
 
 assign Fp       = opcode[4];
 assign Load_store_fp = opcode[5] & opcode[4];
