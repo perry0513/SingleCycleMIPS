@@ -58,7 +58,7 @@ always@(*) begin
     if (RegWrite) begin
         if (Fp) begin
             next_fp_reg_file[write_reg] = write_data_0;
-            if (double | fmt0) begin
+            if (fmt0) begin
                 next_fp_reg_file[write_reg + 5'b1] = write_data_1;
             end
         end
