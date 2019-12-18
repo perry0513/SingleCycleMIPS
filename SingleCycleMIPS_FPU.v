@@ -42,9 +42,9 @@ reg  double;
 wire Fp;
 /* decode instructions */
 wire [5:0] opcode = IR[31:26];
-wire [4:0] rs     = Fp? IR[15:11] : IR[25:21];
+wire [4:0] rs     = (~opcode[5] & opcode[4])? IR[15:11] : IR[25:21];
 wire [4:0] rt     = double? IR[20:16] + 5'd1 : IR[20:16];
-wire [4:0] rd     = Fp? IR[10: 6] : IR[15:11];
+wire [4:0] rd     = (~opcode[5] & opcode[4])? IR[10: 6] : IR[15:11];
 wire [4:0] shamt  = IR[10: 6];
 wire [5:0] funct  = IR[ 5: 0];
 
