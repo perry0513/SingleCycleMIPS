@@ -63,14 +63,14 @@ wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 
 wire        Zero;
+wire [31:0] reg_data_0_0;
+wire [31:0] reg_data_0_1;
+wire [31:0] reg_data_1_0;
 wire [31:0] reg_data_1_1;
-wire [31:0] reg_data_2_1;
-wire [31:0] reg_data_1_2;
-wire [31:0] reg_data_2_2;
 wire [31:0] ALU_result;
+wire [31:0] ALU_fp_result_0;
 wire [31:0] ALU_fp_result_1;
-wire [31:0] ALU_fp_result_2;
-wire [31:0] real_ALU_result = (Fp & ~Load_store_fp)? ALU_fp_result_1 : ALU_result;
+wire [31:0] real_ALU_result = (Fp & ~Load_store_fp)? ALU_fp_result_0 : ALU_result;
 
 
 /* Jump */
@@ -80,7 +80,7 @@ wire [31:0] jump_addr   = { added_addr[31:28], IR[25:0], 2'b00 };
 
 /* muxes */
 wire [ 4:0] write_reg = Jal? 5'd31: (RegDst? rd : rt);
-wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_2;
+wire [31:0] ALUInput  = ALUSrc? extimm : reg_data_1_0;
 wire [31:0] DatatoReg = Jal? added_addr : (MemtoReg? ReadDataMem : real_ALU_result);
 wire        isBranch  = (Bclt & FpCond) | (Branch & (NEqual ^ Zero));
 wire [31:0] branched  = isBranch? branch_addr : added_addr;
@@ -92,8 +92,8 @@ assign CEN = WEN & OEN;
 assign WEN = ~MemWrite;
 assign OEN = ~MemRead;
 assign A   = ALU_result[8:2];
-assign Data2Mem = reg_data_2;
-assign next_pc  = Jr? reg_data_1 : jumped;
+assign Data2Mem = reg_data_1_0;
+assign next_pc  = Jr? reg_data_0_0 : jumped;
 assign IR_addr  = pc;
 
 
@@ -115,25 +115,26 @@ end
 Register mips_reg(
    .clk(clk),
    .rst_n(rst_n),
-   .read_reg_1(rs),
-   .read_reg_2(rt),
+   .read_reg_0(rs),
+   .read_reg_1(rt),
    .write_reg(write_reg),
-   .write_data_1(DatatoReg),
-   .write_data_2(ALU_fp_result_2),
+   .write_data_0(DatatoReg),
+   .write_data_1(ALU_fp_result_1),
    .RegWrite(RegWrite),
    .Fp(Fp),
    .double(double),
+   .fmt0(rs[0]),
    .Load_store_fp(Load_store_fp),
-   .read_data_1_1(reg_data_1_1),
-   .read_data_2_1(reg_data_2_1),
-   .read_data_1_2(reg_data_1_2),
-   .read_data_2_2(reg_data_2_2)
+   .read_data_0_0(reg_data_0_0),
+   .read_data_0_1(reg_data_0_1),
+   .read_data_1_0(reg_data_1_0),
+   .read_data_1_1(reg_data_1_1)
 );
 
 Control ctrl(
     .opcode(opcode),
     .funct(funct),
-    .fmt(rs[4]),
+    .fmt4(rs[4]),
     .RegDst(RegDst),
     .Jump(Jump),
     .Branch(Branch),
@@ -158,7 +159,7 @@ ALU_control alu_ctrl(
 );
 
 ALU alu(
-    .in0(reg_data_1),
+    .in0(reg_data_0_0),
     .in1(ALUInput),
     .ALUCtrl(ALUCtrl),
     .shamt(shamt),
@@ -167,9 +168,17 @@ ALU alu(
 );
 
 ALU_fp alu_fp(
-    .FpCond(FpCond),
+    .clk(clk),
+    .rst_n(rst_n),
+    .in0_0(reg_data_0_0),
+    .in0_1(reg_data_0_1),
+    .in1_0(reg_data_1_0),
+    .in1_1(reg_data_1_1),
+    .ALUCtrl(ALUCtrl),
+    .isDouble(rs[0]),
+    .ALUResult_0(ALU_fp_result_0),
     .ALUResult_1(ALU_fp_result_1),
-    .ALUResult_2(ALU_fp_result_2)
+    .FpCond(FpCond)
 );
 
 //==== combinational part =================================

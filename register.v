@@ -1,19 +1,20 @@
 module Register(
     clk,
 	rst_n,
+    read_reg_0,
     read_reg_1,
-    read_reg_2,
     write_reg,
+    write_data_0,
     write_data_1,
-    write_data_2,
     RegWrite,
     Fp,
     double,
     Load_store_fp,
-    read_data_1_1,
-    read_data_2_1,
-    read_data_1_2,
-    read_data_2_2
+    fmt0,
+    read_data_0_0,
+    read_data_0_1,
+    read_data_1_0,
+    read_data_1_1
 );
 
 input  clk;
@@ -22,28 +23,28 @@ input  RegWrite;
 input  Fp;
 input  double;
 input  Load_store_fp;
+input  [4:0] read_reg_0;
 input  [4:0] read_reg_1;
-input  [4:0] read_reg_2;
 input  [4:0] write_reg;
+input  [31:0] write_data_0;
 input  [31:0] write_data_1;
-input  [31:0] write_data_2;
 
+output [31:0] read_data_0_0;
+output [31:0] read_data_1_0;
+output [31:0] read_data_0_1;
 output [31:0] read_data_1_1;
-output [31:0] read_data_2_1;
-output [31:0] read_data_1_2;
-output [31:0] read_data_2_2;
 
 reg  [31:0]         reg_file [0:31];
 reg  [31:0]    next_reg_file [0:31];
 reg  [31:0]      fp_reg_file [0:31];
 reg  [31:0] next_fp_reg_file [0:31];
 
-assign read_data_1_1 = Load_store_fp? reg_file[read_reg_1] : 
+assign read_data_0_0 = Load_store_fp? reg_file[read_reg_0] : 
+                       (Fp? fp_reg_file[read_reg_0] : reg_file[read_reg_0]);
+assign read_data_1_0 = Load_store_fp? fp_reg_file[read_reg_1] :
                        (Fp? fp_reg_file[read_reg_1] : reg_file[read_reg_1]);
-assign read_data_2_1 = Load_store_fp? fp_reg_file[read_reg_2] :
-                       (Fp? fp_reg_file[read_reg_2] : reg_file[read_reg_2]);
-assign read_data_1_2 = fp_reg_file[read_reg_1 + 5'b1];
-assign read_data_2_2 = fp_reg_file[read_reg_2 + 5'b1];
+assign read_data_0_1 = fp_reg_file[read_reg_0 + 5'b1];
+assign read_data_1_1 = fp_reg_file[read_reg_1 + 5'b1];
 
 integer k;
 
@@ -55,13 +56,13 @@ always@(*) begin
 
     if (RegWrite) begin
         if (Fp) begin
-            next_fp_reg_file[write_reg] = write_data_1;
-            if (double) begin
-                next_fp_reg_file[write_reg + 5'b1] = write_data_2;
+            next_fp_reg_file[write_reg] = write_data_0;
+            if (double | fmt0) begin
+                next_fp_reg_file[write_reg + 5'b1] = write_data_1;
             end
         end
         else begin
-            next_reg_file[write_reg] = write_data_1;
+            next_reg_file[write_reg] = write_data_0;
         end
     end
 end

@@ -1,7 +1,7 @@
 module Control(
     opcode,
     funct,
-    fmt,
+    fmt4,
     RegDst,
     Jump,
     Branch,
@@ -19,7 +19,7 @@ module Control(
     Bclt
 );
 
-input  fmt;
+input  fmt4;
 input  [5:0] opcode;
 input  [5:0] funct;
 
@@ -62,7 +62,7 @@ assign MemRead  =  opcode[5] & ~opcode[3];
 assign MemtoReg =  opcode[5] & ~opcode[3];
 assign MemWrite =  opcode[5] &  opcode[3];
 assign ALUSrc   =  opcode[5] |  opcode[3];
-assign RegWrite = (opcode[5] ^  opcode[3]) | ( isRtype & (funct[5] | ~funct[3]) ) | Jal | (Fp & fmt & ~funct[5]);
+assign RegWrite = (opcode[5] ^  opcode[3]) | ( isRtype & (funct[5] | ~funct[3]) ) | Jal | (Fp & fmt4 & ~funct[5]);
 assign Jal      = ~opcode[5] &  opcode[1] & opcode[0];
 // assign Jr       = ~funct [5] &  funct [3] & ~opcode[3] & RegDst;
 assign Jr       =  isRtype & ~funct [5] & funct [3];
@@ -71,77 +71,6 @@ assign ALUOp    = (opcode[5] | opcode[3] )? 2'b00 :
 
 assign Fp       = opcode[4];
 assign Load_store_fp = opcode[5] & opcode[4];
-assign Bclt     = ~opcode[5] & opcode[4] & ~fmt;
-/*
-always@(*) begin
-    RegDst   = 1'b0;
-    Jump     = 1'b0;
-    Branch   = 1'b0;
-    ALUSrc   = 1'b1;
-    MemRead  = 1'b0;
-    MemWrite = 1'b0;
-    MemtoReg = 1'b0;
-    ALUOp    = 2'b00;
-
-    case(opcode)
-        // R format
-        6'h00 : begin
-            RegDst   = 1'b1;
-            ALUOp    = 2'b10;
-            ALUSrc   = 1'b0;
-            RegWrite = 1'b1;
-        end
-
-        // addi 
-        6'h08 : begin
-            RegWrite = 1'b1;
-        end
-
-        // lw 
-        6'h23 : begin
-            RegWrite = 1'b1;
-            MemRead  = 1'b1;
-            MemtoReg = 1'b1;
-        end
-
-        // sw
-        6'h2B : begin
-            RegWrite = 1'b0;
-            MemRead  = 1'b1;
-            MemtoReg = 1'b1;
-        end
-
-        // beq
-        6'h04 : begin
-            ALUOp    = 2'b01;
-            RegWrite = 1'b0;
-            Branch   = 1'b1;
-            Equal    = 1'b1;
-        end
-
-        // bne 
-        6'h05 : begin
-            ALUOp    = 2'b01;
-            RegWrite = 1'b0;
-            Branch   = 1'b1;
-            Equal    = 1'b0;
-        end
-
-        // j 
-        6'h02 : begin
-            Jump     = 1'b1;
-            RegWrite = 1'b0;
-        end
-
-        // jal
-        6'h03 : begin
-            Jump     = 1'b1;
-            RegWrite = 1'b0;
-        end
-
-
-    endcase
-end
-*/
+assign Bclt     = ~opcode[5] & opcode[4] & ~fmt4;
 
 endmodule
