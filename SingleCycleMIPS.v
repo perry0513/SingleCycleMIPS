@@ -2,6 +2,7 @@
 `include "control.v"
 `include "alu_control.v"
 `include "alu.v"
+`include "alu_fp.v"
 
 module SingleCycleMIPS( 
     clk,
@@ -32,13 +33,6 @@ output        OEN;
 
 //==== reg/wire declaration ===============================
 /* output registers */
-/*
-reg  CEN, next_CEN;
-reg  WEN, next_WEN;
-reg  OEN, next_OEN;
-reg  [6:0]  A, next_A;
-reg  [31:0] Data2Mem, next_Data2Mem;
-*/
 
 reg  [31:0] pc;
 wire [31:0] next_pc;
@@ -101,11 +95,11 @@ assign next_double = (Load_store_fp & opcode[2])? ~double : double;
 
 always@(posedge clk) begin
     if (~rst_n) begin
-        pc <= 32'b0;
+        pc     <= 32'b0;
         double <= 1'b0;
     end
     else begin
-        pc <= (Load_store_fp & opcode[2] & ~double)? pc : next_pc;
+        pc     <= (Load_store_fp & opcode[2] & ~double)? pc : next_pc;
         double <= next_double;
     end
 end
@@ -181,33 +175,6 @@ ALU_fp alu_fp(
     .FpCond(FpCond)
 );
 
-//==== combinational part =================================
-/*
-always@(*)begin
-
-end
-
-//==== sequential part ====================================
-always@(posedge clk)begin
-    if (rst_n) begin
-        CEN      <= 1'b1;
-        WEN      <= 1'b1;
-        OEN      <= 1'b1;
-        A        <= 7'b0;
-        Data2Mem <= 32'b0;
-        IR_addr  <= 32'b0;
-    end
-    else begin
-        CEN      <= ~(MemRead & MemWrite);
-        WEN      <= ~MemWrite;
-        OEN      <= ~MemRead;
-        A        <= ALU_result;
-        Data2Mem <= reg_data_2;
-        IR_addr  <= Jump? jump_addr : branched;
-    end
-
-end
-*/
 endmodule
 
 
