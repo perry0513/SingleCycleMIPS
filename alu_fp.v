@@ -41,7 +41,7 @@ wire          aeqb, altb, agtb, unordered;
 wire   [31:0] z0, z1;
 wire   [7:0]  status0, status1;
 
-assign ALUResult_0 = ( ~ALUCtrl[3] & ~ALUCtrl[0] ) ? ( isDouble ? result_d[63:32] : result_s ) :
+assign ALUResult_0 = ( ALUCtrl[2] & ~ALUCtrl[1] & ~ALUCtrl[0] ) ? ( isDouble ? result_d[63:32] : result_s ) :
                      ALUCtrl[1] ? result_div : result_mult;
 assign ALUResult_1 = result_d[31:0];
 
@@ -64,7 +64,7 @@ DW_fp_addsub addsub_s(
     .a(in0_0),
     .b(in1_0),
     .rnd(3'b0),
-    .op(ALUCtrl[2]),
+    .op(~ALUCtrl[3]),
     .z(result_s),
     .status(status_s)
 );
@@ -73,7 +73,7 @@ DW_fp_addsub #(.sig_width(52), .exp_width(11)) addsub_d(
     .a( {in0_0, in0_1} ),
     .b( {in1_0, in1_1} ),
     .rnd(3'b0),
-    .op(ALUCtrl[2]),
+    .op(~ALUCtrl[3]),
     .z(result_d),
     .status(status_d)
 );
