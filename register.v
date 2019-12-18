@@ -23,6 +23,7 @@ input  RegWrite;
 input  Fp;
 input  double;
 input  Load_store_fp;
+input  fmt0;
 input  [4:0] read_reg_0;
 input  [4:0] read_reg_1;
 input  [4:0] write_reg;
