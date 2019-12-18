@@ -16,7 +16,8 @@ module Control(
     Jr,
     Fp,
     Load_store_fp,
-    Bclt
+    Bclt,
+    FpCondWrite
 );
 
 input  fmt4;
@@ -38,6 +39,7 @@ output Fp;
 output Load_store_fp;
 output [1:0] ALUOp;
 output Bclt;
+output FpCondWrite;
 
 /* 
 * R    000000
@@ -72,5 +74,6 @@ assign ALUOp    = (opcode[5] | opcode[3] )? 2'b00 :
 assign Fp       = opcode[4];
 assign Load_store_fp = opcode[5] & opcode[4];
 assign Bclt     = ~opcode[5] & opcode[4] & ~fmt4;
+assign FpCondWrite = ~opcode[5] & opcode[4] & fmt4 & funct[5];
 
 endmodule

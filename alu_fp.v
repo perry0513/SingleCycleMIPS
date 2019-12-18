@@ -9,7 +9,8 @@ module ALU_fp(
     isDouble,
     ALUResult_0,
     ALUResult_1,
-    FpCond
+    FpCond,
+    FpCondWrite
 );
 
 input  clk;
@@ -20,6 +21,7 @@ input  [31:0] in0_1;
 input  [31:0] in1_0;
 input  [31:0] in1_1;
 input  [3:0]  ALUCtrl;
+input  FpCondWrite;
 
 output FpCond;
 output [31:0] ALUResult_0;
@@ -45,7 +47,7 @@ assign ALUResult_0 = ( ALUCtrl[2] & ~ALUCtrl[1] & ~ALUCtrl[0] ) ? ( isDouble ? r
                      ALUCtrl[1] ? result_div : result_mult;
 assign ALUResult_1 = result_d[31:0];
 
-assign next_FpCond = ~ALUCtrl[3] ? FpCond :
+assign next_FpCond = ~FpCondWrite ? FpCond :
                       ALUCtrl[1] ? aeqb :
                      ~ALUCtrl[2] ? altb : ( ~agtb );
 

@@ -52,7 +52,7 @@ wire [31:0] extimm = { {16{imm[15]}}, imm };
 /* interconnections between modules */
 wire RegDst, Branch, NEqual, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, Jump, Jal, Jr;
 reg  double;
-wire Fp, next_double, Load_store_fp, Bclt, FpCond;
+wire Fp, next_double, Load_store_fp, Bclt, FpCond, FpCondWrite;
 wire [1:0] ALUOp;
 wire [3:0] ALUCtrl;
 
@@ -143,7 +143,8 @@ Control ctrl(
     .Jr(Jr),
     .Fp(Fp),
     .Load_store_fp(Load_store_fp),
-    .Bclt(Bclt)
+    .Bclt(Bclt),
+    .FpCondWrite(FpCondWrite)
 );
 
 ALU_control alu_ctrl(
@@ -172,7 +173,8 @@ ALU_fp alu_fp(
     .isDouble(rs[0]),
     .ALUResult_0(ALU_fp_result_0),
     .ALUResult_1(ALU_fp_result_1),
-    .FpCond(FpCond)
+    .FpCond(FpCond),
+    .FpCondWrite(FpCondWrite)
 );
 
 endmodule
