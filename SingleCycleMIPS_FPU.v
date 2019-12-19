@@ -4,7 +4,7 @@
 `include "alu.v"
 `include "alu_fp.v"
 
-module SingleCycleMIPS( 
+module SingleCycleMIPS_FPU( 
     clk,
     rst_n,
     IR_addr,

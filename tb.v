@@ -1,6 +1,6 @@
 `timescale 1 ns/10 ps
-`define CYCLE 10.0
-`define SDFFILE     "./SingleCycleMIPS_syn.sdf"   // Modify your sdf file name
+`define CYCLE 25.0
+`define SDFFILE     "./SingleCycleMIPS_FPU_syn.sdf"   // Modify your sdf file name
 `include "HSs18n_128x32.v"
 
 
@@ -47,7 +47,7 @@ module SingleCycle_tb;
 		.data(IR)
 	);
 
-	SingleCycleMIPS SingleCycleMIPS(
+	SingleCycleMIPS_FPU SingleCycleMIPS(
 		clk,
 		rst_n,
 		IR_addr,
