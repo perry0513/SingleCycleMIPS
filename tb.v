@@ -47,7 +47,7 @@ module SingleCycle_tb;
 		.data(IR)
 	);
 
-	SingleCycleMIPS_FPU SingleCycleMIPS(
+	SingleCycleMIPS SingleCycleMIPS(
 		clk,
 		rst_n,
 		IR_addr,
