@@ -1,5 +1,5 @@
 `timescale 1 ns/10 ps
-`define CYCLE 10.0
+`define CYCLE 11.25
 `define SDFFILE     "./SingleCycleMIPS_syn.sdf"   // Modify your sdf file name
 `include "HSs18n_128x32.v"
 
@@ -135,6 +135,7 @@ module SingleCycle_tb;
 					error = error + 1;
 				end
 			end
+			$display(error);
 			if (error == 0)begin
 				$display("=======================The test result is ..... PASS=========================");
 				$display("\n");
